@@ -1,6 +1,7 @@
 package com.codingpractice.ecommerce.controller;
 
 
+import com.codingpractice.ecommerce.dto.CategoryDTO;
 import com.codingpractice.ecommerce.model.Category;
 import com.codingpractice.ecommerce.service.CategoryService;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,9 @@ public class CategoryControllerAdmin {
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
-        String status = categoryService.deleteCategory(categoryId);
-        return ResponseEntity.status(HttpStatus.OK).body(status);
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId){
+        CategoryDTO categoryDTO = categoryService.deleteCategory(categoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(categoryDTO);
     }
 
 }

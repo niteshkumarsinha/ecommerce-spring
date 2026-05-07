@@ -1,5 +1,6 @@
 package com.codingpractice.ecommerce.repository;
 
+import com.codingpractice.ecommerce.dto.CategoryDTO;
 import com.codingpractice.ecommerce.model.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
