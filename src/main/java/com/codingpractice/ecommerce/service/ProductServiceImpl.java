@@ -2,6 +2,7 @@ package com.codingpractice.ecommerce.service;
 
 
 import com.codingpractice.ecommerce.dto.ProductDTO;
+import com.codingpractice.ecommerce.dto.ProductResponse;
 import com.codingpractice.ecommerce.exceptions.ResourceNotFoundException;
 import com.codingpractice.ecommerce.model.Category;
 import com.codingpractice.ecommerce.model.Product;
@@ -9,6 +10,9 @@ import com.codingpractice.ecommerce.repository.CategoryRepository;
 import com.codingpractice.ecommerce.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -35,5 +39,16 @@ public class ProductServiceImpl implements ProductService{
         Product savedProduct = productRepository.save(product);
         ProductDTO productDTO = modelMapper.map(savedProduct, ProductDTO.class);
         return productDTO;
+    }
+
+    @Override
+    public ProductResponse getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        List<ProductDTO> productDTO = products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productDTO);
+        return productResponse;
     }
 }
