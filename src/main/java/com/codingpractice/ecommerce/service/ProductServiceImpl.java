@@ -9,6 +9,7 @@ import com.codingpractice.ecommerce.model.Product;
 import com.codingpractice.ecommerce.repository.CategoryRepository;
 import com.codingpractice.ecommerce.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -22,6 +23,9 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
 
     public ProductServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository, ModelMapper modelMapper, FileService fileService) {
         this.categoryRepository = categoryRepository;
@@ -117,7 +121,7 @@ public class ProductServiceImpl implements ProductService{
 
         // Upload image to server
         // Get the file name of uploaded image
-        String path = "images";
+        String path = this.path;
 
         String filename = null;
         try {
