@@ -11,27 +11,23 @@ import com.codingpractice.ecommerce.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
+
 
 @Service
 public class ProductServiceImpl implements ProductService{
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+    private final FileService fileService;
 
-    public ProductServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository, ModelMapper modelMapper) {
+    public ProductServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository, ModelMapper modelMapper, FileService fileService) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;
+        this.fileService = fileService;
     }
 
     @Override
@@ -125,7 +121,7 @@ public class ProductServiceImpl implements ProductService{
 
         String filename = null;
         try {
-            filename = uploadImage(path, image);
+            filename = fileService.uploadImage(path, image);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -138,28 +134,5 @@ public class ProductServiceImpl implements ProductService{
 
         // return DTO after mapping product to DTO
         return modelMapper.map(updatedProduct, ProductDTO.class);
-    }
-
-    private String uploadImage(String path, MultipartFile file) throws IOException {
-        // File names of current / original file
-        String originalFileName = file.getOriginalFilename();
-
-        // Generate a unique file name
-        String randomId = UUID.randomUUID().toString();
-        assert originalFileName != null;
-        String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf('.')));
-        String filePath = path + File.separator + fileName;
-
-        // Check if path exist and create
-        File folder = new File(path);
-        if (!folder.exists()){
-            folder.mkdir();
-        }
-
-        // Upload to server
-        Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
-
-        // returning filename
-        return fileName;
     }
 }
