@@ -9,13 +9,13 @@ import com.codingpractice.ecommerce.repository.UsersRepository;
 import com.codingpractice.ecommerce.security.jwt.JwtUtils;
 import com.codingpractice.ecommerce.security.request.LoginRequest;
 import com.codingpractice.ecommerce.security.request.SignupRequest;
-import com.codingpractice.ecommerce.security.response.LoginResponse;
 import com.codingpractice.ecommerce.security.response.MessageResponse;
 import com.codingpractice.ecommerce.security.response.UserInfoResponse;
 import com.codingpractice.ecommerce.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -55,8 +55,8 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> autheticateUser(@RequestBody LoginRequest loginRequest){
+    @PostMapping(path = "/signin", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserInfoResponse> authenticateUser(@RequestBody LoginRequest loginRequest){
         Authentication authentication;
 
         try {
@@ -67,14 +67,14 @@ public class AuthController {
             Map<String, Object> map = new HashMap<>();
             map.put("message", "Bad Credentials");
             map.put("status", false);
-            return new ResponseEntity<Object>(map, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new UserInfoResponse(null, null, null, null), HttpStatus.UNAUTHORIZED);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        UserInfoResponse response = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles, jwtToken);
+        UserInfoResponse response = new UserInfoResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), roles);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
