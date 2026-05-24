@@ -7,10 +7,9 @@ import com.codingpractice.ecommerce.util.AuthUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -30,5 +29,25 @@ public class AddressController {
 
         AddressDTO savedAddressDTO = addressService.createAddress(addressDTO, user);
         return new ResponseEntity<>(savedAddressDTO, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/addresses")
+    public ResponseEntity<List<AddressDTO>> getAllAddresses(){
+        List<AddressDTO> addressDTOS = addressService.getAllAddresses();
+        return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping("/addresses/{id}")
+    public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long id){
+        AddressDTO addressDTO = addressService.getAddressById(id);
+        return new ResponseEntity<>(addressDTO, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/addresses/user")
+    public ResponseEntity<List<AddressDTO>> getAddressByUser(){
+        Users user = authUtil.loggedInUser();
+        List<AddressDTO> addressDTOList = addressService.getUserAddresses(user);
+        return new ResponseEntity<>(addressDTOList, HttpStatus.OK);
     }
 }
