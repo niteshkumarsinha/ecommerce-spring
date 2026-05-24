@@ -50,4 +50,10 @@ public class AddressController {
         List<AddressDTO> addressDTOList = addressService.getUserAddresses(user);
         return new ResponseEntity<>(addressDTOList, HttpStatus.OK);
     }
+
+    @PutMapping("/addresses/{addressId}")
+    public ResponseEntity<AddressDTO> updateAddressById(@PathVariable Long addressId, @RequestBody AddressDTO addressDTO){
+        AddressDTO updatedAddressDTO = addressService.updateAddressById(addressId, addressDTO);
+        return new ResponseEntity<>(updatedAddressDTO, HttpStatus.OK);
+    }
 }
