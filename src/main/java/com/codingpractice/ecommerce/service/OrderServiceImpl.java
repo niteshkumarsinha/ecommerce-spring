@@ -31,6 +31,7 @@ public class OrderServiceImpl implements OrderService{
 
     private final ProductRepository productRepository;
 
+    @Autowired
     private CartService cartService;
     @Autowired
     private ModelMapper modelMapper;
@@ -47,33 +48,35 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional
     public OrderDTO placeOrder(String emailId, Long addressId, String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
-        // getting User cart
         Cart cart = cartRepository.findCartByEmail(emailId);
-        if(cart == null){
-            throw new ResourceNotFoundException("Cart", "email", "emailId");
+        if (cart == null) {
+            throw new ResourceNotFoundException("Cart", "email", emailId);
         }
+
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
-        // create a new order with payment info
         Order order = new Order();
         order.setEmail(emailId);
         order.setOrderDate(LocalDate.now());
         order.setTotalAmount(cart.getTotalPrice());
         order.setOrderStatus("Order Accepted !");
         order.setAddress(address);
+
         Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
+        payment.setOrder(order);
         payment = paymentRepository.save(payment);
         order.setPayment(payment);
+
         Order savedOrder = orderRepository.save(order);
 
-        // get items from the cart into the order items
         List<CartItem> cartItems = cart.getCartItems();
-        if(cartItems.isEmpty()){
+        if (cartItems.isEmpty()) {
             throw new APIException("Cart is empty");
         }
+
         List<OrderItem> orderItems = new ArrayList<>();
-        for(CartItem cartItem: cartItems){
+        for (CartItem cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(cartItem.getQuantity());
@@ -82,23 +85,28 @@ public class OrderServiceImpl implements OrderService{
             orderItem.setOrder(savedOrder);
             orderItems.add(orderItem);
         }
+
         orderItems = orderItemRepository.saveAll(orderItems);
-        // update product stack
+
         cart.getCartItems().forEach(item -> {
             int quantity = item.getQuantity();
             Product product = item.getProduct();
+
+            // Reduce stock quantity
             product.setQuantity(product.getQuantity() - quantity);
+
+            // Save product back to the database
             productRepository.save(product);
-            // clear the cart item
+
+            // Remove items from cart
             cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
         });
 
-        // send back the order summary
         OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
-        orderItems.forEach(orderItem -> {
-            orderDTO.getOrderItemDTOS().add(modelMapper.map(orderItem, OrderItemDTO.class));
-        });
+        orderItems.forEach(item -> orderDTO.getOrderItems().add(modelMapper.map(item, OrderItemDTO.class)));
+
         orderDTO.setAddressId(addressId);
+
         return orderDTO;
     }
 }

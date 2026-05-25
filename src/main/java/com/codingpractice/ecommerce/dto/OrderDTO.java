@@ -14,7 +14,7 @@ import java.util.List;
 public class OrderDTO {
     private Long orderId;
     private String email;
-    private List<OrderItemDTO> orderItemDTOS;
+    private List<OrderItemDTO> orderItems;
     private LocalDate localDate;
     private PaymentDTO paymentDTO;
     private Double totalAmount;
