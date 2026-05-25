@@ -82,7 +82,7 @@ public class OrderServiceImpl implements OrderService{
             orderItem.setOrder(savedOrder);
             orderItems.add(orderItem);
         }
-        List<OrderItem> savedOrderItems = orderItemRepository.saveAll(orderItems);
+        orderItems = orderItemRepository.saveAll(orderItems);
         // update product stack
         cart.getCartItems().forEach(item -> {
             int quantity = item.getQuantity();
