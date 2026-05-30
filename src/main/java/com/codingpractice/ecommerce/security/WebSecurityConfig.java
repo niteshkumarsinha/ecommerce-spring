@@ -80,6 +80,7 @@ public class WebSecurityConfig {
                                 //.requestMatchers("/api/carts/**").permitAll()
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/images/**").permitAll()
+                                .requestMatchers("/api/echo").permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
 
