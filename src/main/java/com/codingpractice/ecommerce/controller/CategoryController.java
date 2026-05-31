@@ -2,16 +2,13 @@ package com.codingpractice.ecommerce.controller;
 
 
 import com.codingpractice.ecommerce.config.AppConstants;
-import com.codingpractice.ecommerce.dto.CategoryDTO;
 import com.codingpractice.ecommerce.dto.CategoryResponse;
-import com.codingpractice.ecommerce.model.Category;
 import com.codingpractice.ecommerce.service.CategoryService;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/public/categories")
@@ -23,6 +20,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @Tag(name = "Category APIs", description = "APIs for managing categories")
     @GetMapping
     public ResponseEntity<CategoryResponse> getAllCategories(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
